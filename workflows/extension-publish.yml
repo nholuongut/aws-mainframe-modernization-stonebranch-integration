@@ -1,0 +1,49 @@
+name: Publish Stonebranch Extension
+
+on: [push]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Lint extension
+        run: |
+          python3 -m pip install --upgrade pip
+          pip3 install flake8
+          echo "Linting code"
+          python3 -m flake8 --ignore=E501,E722
+      - name: Build package
+        run: |
+          pip3 install --no-cache --upgrade pip setuptools
+          python3 setup.py bdist_egg
+          cp assets/* dist/
+          cd dist/
+          mv *.egg extension_archive.zip
+          zip -r aws_stonebranch.zip extension_archive* template*
+      - name: version
+        run: echo "::set-output name=version::$(python3 setup.py --version)"
+        id: version
+      - name: release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: false
+          prerelease: false
+          release_name: v${{ steps.version.outputs.version }}
+          tag_name: beta/v${{ steps.version.outputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Upload release artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/aws_stonebranch.zip
+          asset_name: aws_mainframe_modernization_stonebranch_extension.zip
+          asset_content_type: application/zip

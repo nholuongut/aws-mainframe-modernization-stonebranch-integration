@@ -1,0 +1,9 @@
+extension:
+  name: aws-m2
+  version: 1.3.8
+  api_level: 1.1.0
+  requires_python: ">=3.7"
+owner:
+  name: Vaidyanathan Ganesa Sankaran, Huseyin Gomleksizoglu ; Pablo Alonso Prieto ; Praveen Kumar Jeyarajan
+  organization: Amazon Web Services Inc ; Stonebranch Inc
+comments: This universal extension created for AWS Mainframe Modernization integration
